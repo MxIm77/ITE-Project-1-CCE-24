@@ -15,6 +15,12 @@ type _PhoeniciaDigitalConfig struct {
 	Postgres     postgres
 	Mongo        mongo
 	Redis        redis
+	Pins         itepins
+}
+
+type itepins struct {
+	TriggerPin string
+	EchoPin    string
 }
 
 type postgres struct {
@@ -72,6 +78,10 @@ func loadConfig() (*_PhoeniciaDigitalConfig, error) {
 			Redis_host:     os.Getenv("REDIS_HOST"),
 			Redis_port:     os.Getenv("REDIS_PORT"),
 			Redis_password: os.Getenv("Redis_PASSWORD"),
+		},
+		Pins: itepins{
+			TriggerPin: os.Getenv("TriggerPin"),
+			EchoPin:    os.Getenv("EchoPin"),
 		},
 	}
 
