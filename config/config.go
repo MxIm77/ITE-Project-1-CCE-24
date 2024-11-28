@@ -21,6 +21,7 @@ type _PhoeniciaDigitalConfig struct {
 type itepins struct {
 	TriggerPin string
 	EchoPin    string
+	MotorPin   string
 }
 
 type postgres struct {
@@ -82,6 +83,7 @@ func loadConfig() (*_PhoeniciaDigitalConfig, error) {
 		Pins: itepins{
 			TriggerPin: os.Getenv("TriggerPin"),
 			EchoPin:    os.Getenv("EchoPin"),
+			MotorPin:   os.Getenv("MotorPin"),
 		},
 	}
 
