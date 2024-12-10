@@ -1,10 +1,12 @@
 package source
 
 import (
+	PhoeniciaDigitalUtils "Phoenicia-Digital-Base-API/base/utils"
 	PhoeniciaDigitalConfig "Phoenicia-Digital-Base-API/config"
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -21,6 +23,30 @@ type servoMotor struct {
 }
 
 var ServoMotor *servoMotor = InitializeServoMotor()
+
+func HandleLoiter(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUtils.PhoeniciaDigitalResponse {
+	if err := ServoMotor.Loiter(); err != nil {
+		return PhoeniciaDigitalUtils.ApiError{Code: http.StatusInternalServerError, Quote: "Failed to Toggle Loiter"}
+	}
+
+	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: "Loiter Toggled"}
+}
+
+func HandleRotateRight(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUtils.PhoeniciaDigitalResponse {
+	if err := ServoMotor.RotateRight(); err != nil {
+		return PhoeniciaDigitalUtils.ApiError{Code: http.StatusConflict, Quote: err.Error()}
+	}
+
+	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: fmt.Sprintf("Rotated %d Degrees to the right", ServoMotor.rotateDegree)}
+}
+
+func HandleRotateLeft(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUtils.PhoeniciaDigitalResponse {
+	if err := ServoMotor.RotateLeft(); err != nil {
+		return PhoeniciaDigitalUtils.ApiError{Code: http.StatusConflict, Quote: err.Error()}
+	}
+
+	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: fmt.Sprintf("Rotated %d Degrees to the left", ServoMotor.rotateDegree)}
+}
 
 func InitializeServoMotor() *servoMotor {
 
