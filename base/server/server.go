@@ -42,6 +42,8 @@ func StartServer() {
 
 // Initialize Server Logic
 func init() {
+	multiplexer.HandleFunc("/sensor", source.HandleMeasureDistance)
+
 	multiplexer.HandleFunc("OPTIONS /loiter", func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers for all requests (can be more specific if needed)
 		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from any origin (http://localhost:3000 in your case)
@@ -69,7 +71,15 @@ func init() {
 	})
 	multiplexer.Handle("POST /rotate-left", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(source.HandleRotateLeft))
 
-	multiplexer.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Hello, world!")
-	})
+	// multiplexer.HandleFunc("OPTIONS /sensor", func(w http.ResponseWriter, r *http.Request) {
+	// 	// Set CORS headers for all requests (can be more specific if needed)
+	// 	w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from any origin (http://localhost:3000 in your case)
+	// 	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	// 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	// 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	// })
+
+	// multiplexer.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	// 	fmt.Fprintln(w, "Hello, world!")
+	// })
 }
