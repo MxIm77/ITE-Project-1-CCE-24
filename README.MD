@@ -15,12 +15,17 @@ This document outlines the architecture and key components of the backend.
     * **Smooth and Fast Control:** `pi-blaster` ensures smooth and responsive servo movements.
     * **Efficient Resource Utilization:** Optimized for efficient communication with the GPIO pins.
 
-**3. Backend Framework**
+**3. Ultrasonic Sensor Control**
+
+* **Library:** The backend utilizes the `github.com/stianeikeland/go-rpio/v4` library for direct GPIO control.
+* **Direct GPIO Access:** Provides low-level control over the GPIO pins, enabling precise timing for accurate distance measurements.
+
+**4. Backend Framework**
 
 * **`net/http`:** The backend is built upon the standard `net/http` package for handling HTTP requests.
 * **`gorilla/websocket`:** The `gorilla/websocket` library is integrated for enabling real-time, bidirectional communication with the frontend via WebSockets.
 
-**4. WebSockets**
+**5. WebSockets**
 
 * **Real-time Communication:** WebSockets provide a robust mechanism for real-time data exchange between the frontend and backend.
 * **Bidirectional Data Flow:** Enables both the frontend and backend to send and receive messages asynchronously.
@@ -29,7 +34,7 @@ This document outlines the architecture and key components of the backend.
     * **Live data streaming:** Stream sensor data or other information from the backend to the frontend.
     * **User interactions:** Handle user interactions and events seamlessly.
 
-**5. Future Considerations**
+**6. Future Considerations**
 
 * **Scalability:** Explore options for scaling the backend horizontally or vertically to accommodate increasing traffic and data volumes.
 * **Security:** Implement robust security measures, such as authentication, authorization, and data encryption, to protect sensitive data.
