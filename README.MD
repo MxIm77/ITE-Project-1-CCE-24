@@ -1,68 +1,47 @@
-# Multiplexer Handling
+# Backend Documentation
 
-The `server.go` file located in `~/source/server/server.go` contains the initialization function that stores all the functions via the multiplexer.
+This document outlines the architecture and key components of the backend.
 
-```go
-multiplexer.Handle("<METHOD> <ROUTE>", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(<FUNCTION>))
-```
+**1. Configuration**
 
-- The `<METHOD>` tag stores the method if needed ('GET', 'DELETE', 'PUT', 'POST').
-- The `<ROUTE>` tag stores the route where the function will be handled ('/', '/home', '/home/{id}').
-- The `<FUNCTION>` tag stores the function itself, which will be handled on the specified route. This should be programmed in a folder inside the source folder `~/source/myfunctions/functions.go`.
+* All configuration parameters, including database credentials, IoT device pin numbers, and other settings, are stored in a `.env` file located in the `./config/` directory.
+* This approach promotes better organization, improves maintainability, and allows for easier environment-specific configurations.
 
-**Keep in mind the tags should not contain `< >`:**
-```go
-multiplexer.Handle("GET /", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(MYFUNC))
-```
+**2. Servo Control**
 
-## The `PhoeniciaDigitalUtils.PhoeniciaDigitalHandler()` Function
+* **Library:** The backend utilizes the `github.com/cgxeiji/servo` library for controlling servos.
+* **`pi-blaster`:** This library leverages the `pi-blaster` systemd service for efficient and low-latency communication with the Raspberry Pi's GPIO pins.
+* **Benefits:**
+    * **Smooth and Fast Control:** `pi-blaster` ensures smooth and responsive servo movements.
+    * **Efficient Resource Utilization:** Optimized for efficient communication with the GPIO pins.
 
-This function handles the logic of the function type `PhoeniciaDigitalHandler` which returns an error.
+**3. Backend Framework**
 
-### Why Not Use the Base `http.HandleFunc`?
+* **`net/http`:** The backend is built upon the standard `net/http` package for handling HTTP requests.
+* **`gorilla/websocket`:** The `gorilla/websocket` library is integrated for enabling real-time, bidirectional communication with the frontend via WebSockets.
 
-We don't use the base `http.HandleFunc` due to our error handling system in place:
+**4. WebSockets**
 
-- Our functions return an error by just returning a `ApiError` Struct.
-- In case of an error, you can return the exact error to the frontend with the `ApiError` struct.
-- Similarly, In case of no error you would return a `SendJSON` function will filled in parameters.
+* **Real-time Communication:** WebSockets provide a robust mechanism for real-time data exchange between the frontend and backend.
+* **Bidirectional Data Flow:** Enables both the frontend and backend to send and receive messages asynchronously.
+* **Applications:**
+    * **Real-time control:** Control servos, sensors, and other devices in real-time from the frontend.
+    * **Live data streaming:** Stream sensor data or other information from the backend to the frontend.
+    * **User interactions:** Handle user interactions and events seamlessly.
 
-#### Middleware
+**5. Future Considerations**
 
-Our middleware capabilities remain largely consistent with normal middleware functionality, with the following exception:
+* **Scalability:** Explore options for scaling the backend horizontally or vertically to accommodate increasing traffic and data volumes.
+* **Security:** Implement robust security measures, such as authentication, authorization, and data encryption, to protect sensitive data.
+* **Monitoring and Logging:** Integrate monitoring and logging tools to track system performance, identify potential issues, and gain insights into system behavior.
 
-```
-func Test(w http.ResponseWriter, r *http.Request) error {
-    return PhoeniciaDigitalUtils.ApiError{Code: http.StatusAccepted, ErrorQuote: "This is the Test Function"}
-}
+**This document provides a high-level overview of the test backend architecture. For more detailed information, please refer to the source code and individual components.**
 
-func TestMiddleware(next PhoeniciaDigitalUtils.PhoeniciaDigitalHandler) PhoeniciaDigitalUtils.PhoeniciaDigitalHandler {
-    return func(w http.ResponseWriter, r *http.Request) error {
-        log.Println("This Passed Through The Middleware")
-        in := 0
-        if in == 0 {
-            return next(w, r)
-        } else {
-            return PhoeniciaDigitalUtils.ApiError{Code: http.StatusBadGateway, ErrorQuote: "This Stoped At The Else Block"}
-        }
-    }
-}
-```
+**Note:** This is a basic outline. You can expand on this with more specific details about your project, such as:
 
-This middleware example demonstrates how middleware can be used to intercept and process requests before passing them on to the next handler in the chain.
+* **Database schema**
+* **API endpoints**
+* **Error handling and logging mechanisms**
+* **Testing and deployment strategies**
 
-Feel free to customize and extend this middleware pattern as needed for your application.
-
-##### Instructions for Use:
-
-- Define your handler functions in separate files within the myfunctions folder located inside the source folder.
-
-- Implement the logic for each handler function, ensuring they adhere to the PhoeniciaDigitalHandler function signature.
-
-- In your server.go file, initialize the multiplexer and register your handler functions using the Handle method, specifying the HTTP method, route, and corresponding function.
-
-- Optionally, utilize middleware functions to intercept and process requests before they reach the designated handler function.
-
-- Compile and run your server to start handling incoming HTTP requests.
-
-By following these steps, you can effectively manage your HTTP request handling and middleware logic within your Go application.
+By maintaining clear and concise documentation, you can improve the maintainability, understandability, and overall quality of your project.
