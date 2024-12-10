@@ -19,9 +19,10 @@ type _PhoeniciaDigitalConfig struct {
 }
 
 type itepins struct {
-	TriggerPin string
-	EchoPin    string
-	MotorPin   string
+	TriggerPin   string
+	EchoPin      string
+	MotorPin     string
+	RotateDegree string
 }
 
 type postgres struct {
@@ -81,9 +82,10 @@ func loadConfig() (*_PhoeniciaDigitalConfig, error) {
 			Redis_password: os.Getenv("Redis_PASSWORD"),
 		},
 		Pins: itepins{
-			TriggerPin: os.Getenv("TriggerPin"),
-			EchoPin:    os.Getenv("EchoPin"),
-			MotorPin:   os.Getenv("MotorPin"),
+			TriggerPin:   os.Getenv("TriggerPin"),
+			EchoPin:      os.Getenv("EchoPin"),
+			MotorPin:     os.Getenv("MotorPin"),
+			RotateDegree: os.Getenv("RotateDegree"),
 		},
 	}
 
