@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/cgxeiji/servo"
 )
@@ -22,7 +21,7 @@ type servoMotor struct {
 	cancel       context.CancelFunc
 }
 
-var ServoMotor *servoMotor = InitializeServoMotor()
+var ServoMotor *servoMotor = &servoMotor{}
 
 func HandleLoiter(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUtils.PhoeniciaDigitalResponse {
 	if err := ServoMotor.Loiter(); err != nil {
@@ -48,7 +47,7 @@ func HandleRotateLeft(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUt
 	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: fmt.Sprintf("Rotated %d Degrees to the left", ServoMotor.rotateDegree)}
 }
 
-func InitializeServoMotor() *servoMotor {
+func (s *servoMotor) InitializeServoMotor() {
 
 	// Check Pin Conversion from the .env file (should be actual numbers and in range of the raspberry pi zero w pins)
 	// If an issue occured with conversion the program wont run!
@@ -68,43 +67,46 @@ func InitializeServoMotor() *servoMotor {
 		log.Fatalf("Trigger Pin Value in .env file is an invalid pin number")
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	s.ctx, s.cancel = context.WithCancel(context.Background())
 
-	return &servoMotor{
-		Motor:        servo.New(motorPin),
-		loitering:    false,
-		currentPos:   90.0,
-		rotateDegree: rotationdeg,
-		ctx:          ctx,
-		cancel:       cancel,
+	s.Motor = servo.New(motorPin)
+	s.loitering = false
+	s.currentPos = 90.0
+	s.rotateDegree = rotationdeg
+
+	if err := s.Motor.Connect(); err != nil {
+		log.Fatalf("Failed to connect to Servo Motor | Error: %s", err.Error())
 	}
+
+	s.Motor.MoveTo(s.currentPos).Wait()
 
 }
 
 func (s *servoMotor) Loiter() error {
 	if !s.loitering {
 		s.loitering = true
+		s.ctx, s.cancel = context.WithCancel(context.Background())
+
 		go func() {
-			defer s.cancel() // Cancel context on goroutine exit
+			// defer s.wg.Done()
 			for {
 				select {
 				case <-s.ctx.Done():
 					return
 				default:
-					s.Motor.SetPosition(180)
-
-					time.Sleep(500 * time.Millisecond)
-
-					s.Motor.SetPosition(0)
-
-					time.Sleep(500 * time.Millisecond)
+					s.Motor.SetSpeed(0.5)
+					s.Motor.MoveTo(180).Wait()
+					s.Motor.MoveTo(0).Wait()
 				}
 			}
 		}()
 	} else {
+		s.Motor.SetSpeed(0)
+
 		s.cancel()
-		s.loitering = false
 		s.Motor.SetPosition(s.currentPos)
+
+		s.loitering = false
 	}
 
 	return nil
@@ -117,9 +119,11 @@ func (s *servoMotor) RotateRight() error {
 
 	if s.currentPos < 180 {
 		s.currentPos += float64(s.rotateDegree)
-		s.Motor.SetPosition(s.currentPos)
+		s.Motor.SetSpeed(0.5)
+		s.Motor.MoveTo(s.currentPos).Wait()
+
 	} else {
-		return fmt.Errorf("cannot rotate max angle reached")
+		return fmt.Errorf("cannot rotate max angle reached %f Degrees", s.currentPos)
 	}
 
 	return nil
@@ -132,10 +136,15 @@ func (s *servoMotor) RotateLeft() error {
 
 	if s.currentPos > 0 {
 		s.currentPos -= float64(s.rotateDegree)
-		s.Motor.SetPosition(s.currentPos)
+		s.Motor.SetSpeed(0.5)
+		s.Motor.MoveTo(s.currentPos).Wait()
 	} else {
-		return fmt.Errorf("cannot rotate max angle reached")
+		return fmt.Errorf("cannot rotate max angle reached %f Degrees", s.currentPos)
 	}
 
 	return nil
+}
+
+func init() {
+	ServoMotor.InitializeServoMotor()
 }
