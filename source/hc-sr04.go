@@ -1,8 +1,10 @@
 package source
 
 import (
+	PhoeniciaDigitalUtils "Phoenicia-Digital-Base-API/base/utils"
 	PhoeniciaDigitalConfig "Phoenicia-Digital-Base-API/config"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -37,6 +39,7 @@ func (h *hcsr04) InitializeUltrasonicSensor() {
 	// Initialize GPIO
 	err := rpio.Open()
 	if err != nil {
+		PhoeniciaDigitalUtils.Log(fmt.Sprintf("Failed to open GPIO: %v", err))
 		log.Fatalf("Failed to open GPIO: %v", err)
 	}
 	// defer rpio.Close()
@@ -45,6 +48,7 @@ func (h *hcsr04) InitializeUltrasonicSensor() {
 	// If an issue occured with conversion the program wont run!
 	trigPin, err := strconv.Atoi(PhoeniciaDigitalConfig.Config.Pins.TriggerPin)
 	if err != nil {
+		PhoeniciaDigitalUtils.Log("Trigger Pin Value in .env file is an invalid pin number")
 		log.Fatalf("Trigger Pin Value in .env file is an invalid pin number")
 	}
 
@@ -52,15 +56,19 @@ func (h *hcsr04) InitializeUltrasonicSensor() {
 	// If an issue occured with conversion the program wont run!
 	echoPin, err := strconv.Atoi(PhoeniciaDigitalConfig.Config.Pins.EchoPin)
 	if err != nil {
+		PhoeniciaDigitalUtils.Log("Echo Pin Value in .env file is an invalid pin number")
 		log.Fatalf("Echo Pin Value in .env file is an invalid pin number")
 	}
 
 	// Make sure the Trigger & Echo pins are not the same & make sure the Trigger & Echo pins are in the GPIO range map of a raspberry pi zero w v1
 	if trigPin == echoPin {
+		PhoeniciaDigitalUtils.Log(fmt.Sprintf("Echo pin: %d, & Trigger pin: %d, CANT be assigned to the same pin", echoPin, trigPin))
 		log.Fatalf("Echo pin: %d, & Trigger pin: %d, CANT be assigned to the same pin", echoPin, trigPin)
 	} else if trigPin < 2 || trigPin > 27 {
+		PhoeniciaDigitalUtils.Log(fmt.Sprintf("Trigger pin: %d, out of GPIO map range [2 -> 27] | Please Change it in the ~/config/.env file", trigPin))
 		log.Fatalf("Trigger pin: %d, out of GPIO map range [2 -> 27] | Please Change it in the ~/config/.env file", trigPin)
 	} else if echoPin < 2 || echoPin > 27 {
+		PhoeniciaDigitalUtils.Log(fmt.Sprintf("Echo pin: %d, out of GPIO map range [2 -> 27] | Please Change it in the ~/config/.env file", echoPin))
 		log.Fatalf("Echo pin: %d, out of GPIO map range [2 -> 27] | Please Change it in the ~/config/.env file", echoPin)
 	}
 
@@ -75,8 +83,8 @@ func (h *hcsr04) InitializeUltrasonicSensor() {
 	// Assign other variables that will be linked to the hc-sr04
 	h.SpeedOfWave = 0.0343
 	h.pulseWidth = 10 * time.Microsecond
-
-	log.Printf("Trigger Pin: %d, Echo Pin: %d", trigPin, echoPin)
+	PhoeniciaDigitalUtils.Log(fmt.Sprintf("Initialized With Trigger Pin: %d, Echo Pin: %d", trigPin, echoPin))
+	log.Printf("Initialized With Trigger Pin: %d, Echo Pin: %d", trigPin, echoPin)
 
 }
 

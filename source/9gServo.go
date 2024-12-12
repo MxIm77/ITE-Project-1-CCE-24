@@ -59,23 +59,27 @@ func (s *servoMotor) InitializeServoMotor() {
 	// If an issue occured with conversion the program wont run!
 	motorPin, err := strconv.Atoi(PhoeniciaDigitalConfig.Config.Pins.MotorPin)
 	if err != nil {
-		log.Fatalf("Trigger Pin Value in .env file is an invalid pin number")
+		PhoeniciaDigitalUtils.Log("Motor Pin Value in .env file is an invalid pin number")
+		log.Fatalf("Motor Pin Value in .env file is an invalid pin number")
 	}
 
 	// Make sure the Motor pin is in the GPIO range map of a raspberry pi zero w v1
 	if motorPin < 2 || motorPin > 27 {
+		PhoeniciaDigitalUtils.Log(fmt.Sprintf("Motor pin: %d, out of GPIO map range [2 -> 27] | Please Change it in the ~/config/.env file", motorPin))
 		log.Fatalf("Motor pin: %d, out of GPIO map range [2 -> 27] | Please Change it in the ~/config/.env file", motorPin)
 	}
 
 	// Set Desired Rotation Degree
 	rotationdeg, err := strconv.Atoi(PhoeniciaDigitalConfig.Config.Pins.RotateDegree)
 	if err != nil {
-		log.Fatalf("Trigger Pin Value in .env file is an invalid pin number")
+		PhoeniciaDigitalUtils.Log("Rotation Degrees invalid | Edit .env file to fix error")
+		log.Fatalf("Rotation Degrees invalid | Edit .env file to fix error")
 	}
 
 	loitspeed, err := strconv.ParseFloat(PhoeniciaDigitalConfig.Config.Pins.LoiterSpeed, 32)
 	if err != nil {
-		log.Fatalf("Failed to COnvert Loiter Speed to float32")
+		PhoeniciaDigitalUtils.Log("Failed to convert Loiter Speed to float32")
+		log.Fatalf("Failed to convert Loiter Speed to float32")
 	}
 
 	s.ctx, s.cancel = context.WithCancel(context.Background())
@@ -87,8 +91,12 @@ func (s *servoMotor) InitializeServoMotor() {
 	s.rotateDegree = rotationdeg
 
 	if err := s.Motor.Connect(); err != nil {
+		PhoeniciaDigitalUtils.Log(fmt.Sprintf("Failed to connect to Servo Motor | Error: %s", err.Error()))
 		log.Fatalf("Failed to connect to Servo Motor | Error: %s", err.Error())
 	}
+
+	PhoeniciaDigitalUtils.Log(fmt.Sprintf("Initialized Servo with Pin: %d, Loiter Speed: %f, & Rotation Degrees: %d", motorPin, s.loiterSpeed, s.rotateDegree))
+	log.Printf("Initialized Servo with Pin: %d, Loiter Speed: %f, & Rotation Degrees: %d", motorPin, s.loiterSpeed, s.rotateDegree)
 
 	s.Motor.MoveTo(s.currentPos).Wait()
 
