@@ -78,7 +78,7 @@ func (apiScc ApiSuccess) Response() any {
 func SendJSON(w http.ResponseWriter, status int, val any) error {
 	// Set the Response Writers Header status and the content type to JSON so that we can send JSON
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3001")
 	w.WriteHeader(status)
 
 	// Encode The Value `val` into the Response Writer and return an error if occured which will be managed by
@@ -89,7 +89,7 @@ func SendJSON(w http.ResponseWriter, status int, val any) error {
 // Implementaion of the http.ServeHTTP interface on `PhoeniciaDigitalHandler`
 func (pdf PhoeniciaDigitalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Set CORS headers
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3001")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 

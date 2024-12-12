@@ -46,30 +46,30 @@ func init() {
 
 	multiplexer.HandleFunc("OPTIONS /loiter", func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers for all requests (can be more specific if needed)
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from any origin (http://localhost:3000 in your case)
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3001") // Allow requests from any origin (http://localhost:3000 in your case)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	})
-	multiplexer.Handle("POST /loiter", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(source.HandleLoiter))
+	multiplexer.Handle("GET /loiter", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(source.HandleLoiter))
 
 	multiplexer.HandleFunc("OPTIONS /rotate-right", func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers for all requests (can be more specific if needed)
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from any origin (http://localhost:3000 in your case)
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3001") // Allow requests from any origin (http://localhost:3000 in your case)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	})
-	multiplexer.Handle("POST /rotate-right", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(source.HandleRotateRight))
+	multiplexer.Handle("GET /rotate-right", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(source.HandleRotateRight))
 
 	multiplexer.HandleFunc("OPTIONS /rotate-left", func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers for all requests (can be more specific if needed)
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from any origin (http://localhost:3000 in your case)
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3001") // Allow requests from any origin (http://localhost:3000 in your case)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	})
-	multiplexer.Handle("POST /rotate-left", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(source.HandleRotateLeft))
+	multiplexer.Handle("GET /rotate-left", PhoeniciaDigitalUtils.PhoeniciaDigitalHandler(source.HandleRotateLeft))
 
 	// multiplexer.HandleFunc("OPTIONS /sensor", func(w http.ResponseWriter, r *http.Request) {
 	// 	// Set CORS headers for all requests (can be more specific if needed)

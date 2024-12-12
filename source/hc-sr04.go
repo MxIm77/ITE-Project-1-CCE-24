@@ -15,7 +15,7 @@ import (
 type hcsr04 struct {
 	Trigger     rpio.Pin
 	Echo        rpio.Pin
-	SpeedOfWave uint
+	SpeedOfWave float32
 	pulseWidth  time.Duration
 }
 
@@ -73,7 +73,7 @@ func (h *hcsr04) InitializeUltrasonicSensor() {
 	h.Echo.Mode(rpio.Input)
 
 	// Assign other variables that will be linked to the hc-sr04
-	h.SpeedOfWave = 34300
+	h.SpeedOfWave = 0.0343
 	h.pulseWidth = 10 * time.Microsecond
 
 	log.Printf("Trigger Pin: %d, Echo Pin: %d", trigPin, echoPin)
@@ -103,7 +103,7 @@ func (h *hcsr04) MeasureDistance() float64 {
 	duration := time.Since(start)
 
 	// Calculate distance in cm
-	distance := float64(duration) / 2 / float64(time.Microsecond) * float64(h.SpeedOfWave) / 1000000 // Convert to cm
+	distance := (float64(duration) * float64(h.SpeedOfWave)) / 2 // Convert to cm
 	return distance
 }
 

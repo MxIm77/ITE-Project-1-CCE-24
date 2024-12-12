@@ -15,10 +15,16 @@ import (
 type servoMotor struct {
 	Motor        *servo.Servo
 	loitering    bool
+	loiterSpeed  float32
 	currentPos   float64
 	rotateDegree int
 	ctx          context.Context
 	cancel       context.CancelFunc
+}
+
+type servoResponse struct {
+	Message string `json:"message"`
+	Degree  int    `json:"degree"`
 }
 
 var ServoMotor *servoMotor = &servoMotor{}
@@ -28,7 +34,7 @@ func HandleLoiter(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUtils.
 		return PhoeniciaDigitalUtils.ApiError{Code: http.StatusInternalServerError, Quote: "Failed to Toggle Loiter"}
 	}
 
-	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: "Loiter Toggled"}
+	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: servoResponse{Message: "Loiter Toggled", Degree: int(ServoMotor.currentPos)}}
 }
 
 func HandleRotateRight(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUtils.PhoeniciaDigitalResponse {
@@ -36,7 +42,7 @@ func HandleRotateRight(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalU
 		return PhoeniciaDigitalUtils.ApiError{Code: http.StatusConflict, Quote: err.Error()}
 	}
 
-	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: fmt.Sprintf("Rotated %d Degrees to the right", ServoMotor.rotateDegree)}
+	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: servoResponse{Message: fmt.Sprintf("Rotated %d Degrees to the Right", ServoMotor.rotateDegree), Degree: int(ServoMotor.currentPos)}}
 }
 
 func HandleRotateLeft(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUtils.PhoeniciaDigitalResponse {
@@ -44,7 +50,7 @@ func HandleRotateLeft(w http.ResponseWriter, r *http.Request) PhoeniciaDigitalUt
 		return PhoeniciaDigitalUtils.ApiError{Code: http.StatusConflict, Quote: err.Error()}
 	}
 
-	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: fmt.Sprintf("Rotated %d Degrees to the left", ServoMotor.rotateDegree)}
+	return PhoeniciaDigitalUtils.ApiSuccess{Code: http.StatusOK, Quote: servoResponse{Message: fmt.Sprintf("Rotated %d Degrees to the Left", ServoMotor.rotateDegree), Degree: int(ServoMotor.currentPos)}}
 }
 
 func (s *servoMotor) InitializeServoMotor() {
@@ -67,10 +73,16 @@ func (s *servoMotor) InitializeServoMotor() {
 		log.Fatalf("Trigger Pin Value in .env file is an invalid pin number")
 	}
 
+	loitspeed, err := strconv.ParseFloat(PhoeniciaDigitalConfig.Config.Pins.LoiterSpeed, 32)
+	if err != nil {
+		log.Fatalf("Failed to COnvert Loiter Speed to float32")
+	}
+
 	s.ctx, s.cancel = context.WithCancel(context.Background())
 
 	s.Motor = servo.New(motorPin)
 	s.loitering = false
+	s.loiterSpeed = float32(loitspeed)
 	s.currentPos = 90.0
 	s.rotateDegree = rotationdeg
 
@@ -94,7 +106,7 @@ func (s *servoMotor) Loiter() error {
 				case <-s.ctx.Done():
 					return
 				default:
-					s.Motor.SetSpeed(0.5)
+					s.Motor.SetSpeed(0.15)
 					s.Motor.MoveTo(180).Wait()
 					s.Motor.MoveTo(0).Wait()
 				}
@@ -119,7 +131,7 @@ func (s *servoMotor) RotateRight() error {
 
 	if s.currentPos < 180 {
 		s.currentPos += float64(s.rotateDegree)
-		s.Motor.SetSpeed(0.5)
+		s.Motor.SetSpeed(0.15)
 		s.Motor.MoveTo(s.currentPos).Wait()
 
 	} else {
@@ -136,7 +148,7 @@ func (s *servoMotor) RotateLeft() error {
 
 	if s.currentPos > 0 {
 		s.currentPos -= float64(s.rotateDegree)
-		s.Motor.SetSpeed(0.5)
+		s.Motor.SetSpeed(0.15)
 		s.Motor.MoveTo(s.currentPos).Wait()
 	} else {
 		return fmt.Errorf("cannot rotate max angle reached %f Degrees", s.currentPos)

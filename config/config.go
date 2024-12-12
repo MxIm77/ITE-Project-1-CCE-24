@@ -23,6 +23,7 @@ type itepins struct {
 	EchoPin      string
 	MotorPin     string
 	RotateDegree string
+	LoiterSpeed  string
 }
 
 type postgres struct {
@@ -86,6 +87,7 @@ func loadConfig() (*_PhoeniciaDigitalConfig, error) {
 			EchoPin:      os.Getenv("EchoPin"),
 			MotorPin:     os.Getenv("MotorPin"),
 			RotateDegree: os.Getenv("RotateDegree"),
+			LoiterSpeed:  os.Getenv("LoiterSpeed"),
 		},
 	}
 
